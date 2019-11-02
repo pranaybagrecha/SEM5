@@ -1,0 +1,5 @@
+DHCP Router CLI:
+
+ip helper-address [ip address of dhcp server]
+ctrl+z
+copy running-config startup-config
