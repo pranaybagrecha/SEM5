@@ -1,0 +1,479 @@
+------CRC-------
+#include <stdio.h>
+#include <string.h>
+void xor (char S1[], char S2[], int m, int n, int r) // Generates the Sender side code
+{
+    char temp[30], qt[100], rem[30], S3[30];
+    int i, j;
+    strcpy(S3, S2);
+    for (i = 0; i < n; i++)
+        temp[i] = S1[i];
+    for (i = 0; i < m; i++) { //main loop to carry out xor for each bit
+        qt[i] = temp[0];
+        if (qt[i] == '0')
+            for (j = 0; j < n; j++)
+                S2[j] = '0';
+        else
+            for (j = 0; j < n; j++)
+                S2[j] = S3[j];
+        for (j = 0; j < n; j++) {
+            if (temp[j] == S2[j])
+                rem[j] = '0';
+            else
+                rem[j] = '1';
+        }
+        for (j = 0; j < n; j++) {
+            rem[j] = rem[j + 1];
+        }
+        rem[n - 1] = S1[i + n];
+        strcpy(temp, rem);
+    }
+    strcpy(rem, temp);
+    printf("\nQuotient is "); // prints the Quotient of the operation
+    for (i = 0; i < m; i++)
+        printf("%c", qt[i]);
+    printf("\nCRC is "); // prints the Remainder of the operation
+    for (i = 0; i < n - 1; i++)
+        printf("%c", rem[i]);
+    printf("\nFinal data is: "); // Final data is the concatenation of S1 and the remainder
+    for (i = 0; i < m; i++)
+        printf("%c", S1[i]);
+    for (i = 0; i < n - 1; i++)
+        printf("%c", rem[i]);
+
+    printf("\n");
+} void check(char S1[], char S2[], int m, int n, int r) // Check for error in receiver side's code
+{ // Same Logic as xor() but with less bits in string S1
+    char temp[30], qt[100], rem[30], S3[30], res[30];
+    int i, j, temp2;
+    temp2 = 0;
+    for (i = 0; i < n - 1; i++) {
+        res[i] = '0';
+    }
+    strcpy(S3, S2);
+    for (i = 0; i < n; i++)
+        temp[i] = S1[i];
+    for (i = 0; i + n < m + 1; i++) {
+        qt[i] = temp[0];
+        if (qt[i] == '0')
+            for (j = 0; j < n; j++)
+                S2[j] = '0';
+        else
+            for (j = 0; j < n; j++)
+                S2[j] = S3[j];
+        for (j = 0; j < n; j++) {
+            if (temp[j] == S2[j])
+                rem[j] = '0';
+            else
+                rem[j] = '1';
+        }
+        for (j = 0; j < n; j++) {
+            rem[j] = rem[j + 1];
+        }
+        rem[n - 1] = S1[i + n];
+    }
+    strcpy(rem, temp);
+    for (i = 0; i < n - 1; i++) // IF Remainder is zero
+    {
+        if (rem[i] == '0')
+            temp2 = 0;
+        else {
+            temp2 = 1;
+            break;
+        }
+    }
+    if (temp2 == 0)
+        printf("N0 Error in the receiver side \n");
+    else
+        printf("There is error on the receiver side", i);
+}
+int main()
+{
+    int i, j, m, n, r, bit, m2, r2;
+    char S1[100], S2[30], S3[50], S4[50];
+    printf("Enter data to be sent: \n"); // Input String of S1
+    gets(S1);
+    printf("Enter generator: \n"); // Divisor String of S2
+    gets(S2);
+    strcpy(S4, S2);
+    m = strlen(S1);
+    n = strlen(S2);
+    r = n - 1;
+    for (i = m; i < m + r; i++)
+        S1[i] = '0';
+    xor(S1, S2, m, n, r); // Function call to generate sender side code
+    printf("Enter the received code \n");
+    gets(S3);
+    m2 = strlen(S3);
+    check(S3, S4, m2, n, r); // Function call to check receiver side code
+}
+-------HAM-------
+#include <stdio.h>
+#include <math.h>
+char input[32];
+char code[32];
+int ham_calc(int,int);
+void main()
+{
+	int n,i,p_n = 0,c_l,j,k;
+	printf("Please enter the Data Word:\n");
+	gets(input);
+	n = strlen(input);
+	for(i = 0; i < n; ++i)
+	    input[i] -= '0';
+
+	i=0;
+	while(n>(int)pow(2,i)-(i+1))
+	{
+		p_n++;
+		i++;
+	}
+		
+	c_l = p_n + n;
+
+	j=k=0;
+	for(i=0;i<c_l;i++)
+	{
+		
+		if(i==((int)pow(2,k)-1))
+		{
+			code[i]=0;
+			k++;
+		}
+		else
+		{
+			code[i]=input[j];
+			j++;
+		}
+	}
+	for(i=0;i<p_n;i++)
+	{
+		int position = (int)pow(2,i);
+		int value = ham_calc(position,c_l);
+		code[position-1]=value;
+	}
+	printf("\nThe calculated Code Word is: ");
+	for(i=0;i<c_l;i++)
+		printf("%d",code[i]);
+	printf("\n");
+	printf("Please enter the received Code Word:\n");
+	for(i=0;i<c_l;i++)
+		scanf("%d",&code[i]);
+
+	int error_pos = 0;
+	for(i=0;i<p_n;i++)
+	{
+		int position = (int)pow(2,i);
+		int value = ham_calc(position,c_l);
+		if(value != 0)
+			error_pos+=position;
+	}
+	if(error_pos == 1)
+		printf("The received Code Word is correct.\n");
+	else
+		printf("Error at bit position: %d\n",error_pos);
+}
+int ham_calc(int position,int c_l)
+{
+	int count=0,i,j;
+	i=position-1;
+	while(i<c_l)
+	{
+		for(j=i;j<i+position;j++)
+		{
+			if(code[j] == 1)
+				count++;
+		}
+		i=i+2*position;
+	}
+	if(count%2 == 0)
+		return 0;
+	else
+		return 1;
+}
+----TCP CL-----
+import socket			 
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)		 
+#creates socket
+port = 12345	
+s.connect(('localhost', port))                               
+#connecting to the socket on the port
+print(s.recv(1024).decode('utf-8'))
+
+data=input("Enter the string : ")	
+s.send(data.encode('utf-8'))
+print("The reversed string is",str(s.recv(1024).decode('utf-8')))
+print(s.recv(1024).decode('utf-8'))
+s.close()	 
+
+import socket 
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)		 
+print("Socket successfully created")
+
+port = 12345			
+s.bind(('localhost', port))		 
+print("socket binded to %s" %(port)) 
+s.listen(5)	 
+print("socket is listening") 	
+
+conn, addr = s.accept()	
+print('Got connection from : ',addr) 
+conn.send(b'Thank you for connecting')
+data = conn.recv(1024).decode('utf-8')
+print("The received string is : "+str(data))
+data1 = data[::-1]
+
+conn.send(data1.encode('utf-8'))
+if(data1==data):
+    conn.send(b'The string is palindrome')
+else:
+    conn.send(b'The string is not palindrome')
+conn.close() 
+
+--------UDP--------
+import time
+import socket
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+#creating a socket connection
+message = b'Thanks for connecting'
+addr = ('localhost', 12000)
+client_socket.sendto(message, addr)
+#sending a request to server through message
+data, server = client_socket.recvfrom(1024)
+print(str(data.decode('utf-8')))
+
+message=input("Enter the string : ").encode('utf-8')
+client_socket.sendto(message, addr)
+
+data, server = client_socket.recvfrom(1024)
+print(str(data.decode('utf-8')))
+
+import random
+import socket
+
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+server_socket.bind(('localhost', 12000))
+#creating socket connection
+message, address = server_socket.recvfrom(1024)
+print(str(message.decode('utf-8')))
+#recieving and accepting a request
+data=b'Connected to server'
+server_socket.sendto(data, address)
+
+message, address = server_socket.recvfrom(1024)
+message = message.decode('utf-8')
+message1 = message[::-1]
+print("The string sent is : "+str(message))
+
+#reversing string
+if(message1==message):
+    server_socket.sendto(b'The string is palindrome', address)
+else:
+    server_socket.sendto(b'The string is not palindrome', address)
+
+------VPN---------
+1. Starting configurations for R1, ISP, and R3. Paste to global config mode :
+hostname R1
+interface g0/1
+ip address 192.168.1.1 255.255.255.0
+no shut
+interface g0/0
+ip address 209.165.100.1 255.255.255.0
+no shut
+exit
+ip route 0.0.0.0 0.0.0.0 209.165.100.2 
+
+hostname ISP
+interface g0/1
+ip address 209.165.200.2 255.255.255.0
+no shut
+interface g0/0
+ip address 209.165.100.2 255.255.255.0
+no shut
+exit
+
+hostname R3
+interface g0/1
+ip address 192.168.3.1 255.255.255.0
+no shut
+interface g0/0
+ip address 209.165.200.1 255.255.255.0
+no shut
+exit
+ip route 0.0.0.0 0.0.0.0 209.165.200.2 
+
+2. Make sure routers have the security license enabled:
+license boot module c1900 technology-package securityk9
+
+3. Configure IPsec on the routers at each end of the tunnel (R1 and R3)
+!R1
+crypto isakmp policy 10
+ encryption aes 256
+ authentication pre-share
+ group 5
+!
+crypto isakmp key secretkey address 209.165.200.1
+!
+crypto ipsec transform-set R1-R3 esp-aes 256 esp-sha-hmac
+!
+crypto map IPSEC-MAP 10 ipsec-isakmp 
+ set peer 209.165.200.1
+ set pfs group5
+ set security-association lifetime seconds 86400
+ set transform-set R1-R3 
+ match address 100
+!
+interface GigabitEthernet0/0
+ crypto map IPSEC-MAP
+!
+access-list 100 permit ip 192.168.1.0 0.0.0.255 192.168.3.0 0.0.0.255
+
+!R3
+crypto isakmp policy 10
+ encryption aes 256
+ authentication pre-share
+ group 5
+!
+crypto isakmp key secretkey address 209.165.100.1
+!
+crypto ipsec transform-set R3-R1 esp-aes 256 esp-sha-hmac
+!
+crypto map IPSEC-MAP 10 ipsec-isakmp 
+ set peer 209.165.100.1
+ set pfs group5
+ set security-association lifetime seconds 86400
+ set transform-set R3-R1 
+ match address 100
+!
+interface GigabitEthernet0/0
+ crypto map IPSEC-MAP
+!
+access-list 100 permit ip 192.168.3.0 0.0.0.255 192.168.1.0 0.0.0.255
+
+--------NAT-----------
+We want to configure a static NAT to the PC-1 of 192.168.1.2 so it can reach the servers on the internet.
+On Router1
+# int s0/0/0
+# ip nat outside
+# int g0/0
+# ip nat inside.
+# ip nat inside source static 192.168.1.2 10.1.1.11
+Run this command:
+# show ip nat translations
+Now, ping the server.
+# ping 8.8.8.8
+Now we will configure dynamic NAT on the Router, to allow the network of 192.168.2.0 to access the internet.
+Let us ping the default gateway.
+# ping 192.168.2.1
+Let us run a ping from a PC to the DNS server.
+# ping 8.8.8.8
+Let us configure dynamic NAT on the Router.
+# int s0/0/0
+# ip nat outside
+# int g0/0
+# ip nat inside
+Now configuring an access list for the network
+# access-list 1 permit 192.168.2.0 0.0.0.255
+# ip nat pool NAT 10.1.1.5 10.1.1.10 netmask 255.255.255.0
+# ip nat inside source list 1 pool NAT
+
+Now, let us create NAT overloading or PAT.
+Here we will have these two PCs to be nated to the IP address of the router.
+On Router1
+# int s0/0/0
+# ip nat outside
+# int g0/0
+# ip nat inside
+# ip nat inside source list 1 interface s0/0/0 overload
+# access-list 1 permit 192.168.1.0 0.0.0.255
+Let us enable telnet on Router2
+# line vty 0 4
+# login
+# password cisco
+# enable password cisco
+Let us telnet to the router from one of the PCs.
+Then run the command :
+# show ip nat translations.
+
+---Hindi-----
+
+access-list 1 permit 10.0.0.0 0.255.255.255
+ip nat kingpool 10.0.0.0 122.1.1.1 122.1.1.4 netmask 255.255.255.0
+ip nat inside source list 1 pool kingpool
+in fa0/0
+ip nat inside
+ip nat translations (then run ip address of server on web browser of computer)
+
+-------DHCP----------
+
+ip helper-address [ip address of dhcp server]
+ctrl+z
+copy running-config startup-config
+
+-------ROUTER PWD--------
+enable
+configure terminal
+line console 0
+password [pswd]
+login
+exit
+
+ctrl+pause/break
+confreg 0x2142
+reset
+
+en
+sh startup-config
+
+------WireShark-------
+1. What is the ip address of the client machine?
+2. What is the ip address of the host machine?
+Ans 	The host is usually the one whom  tcp syn packets are sent to and the client is the one which sends  them 
+So apply filter tcp.flags==2
+3. How many ip address are involved in communication in this capture file?
+Ans.	Statistics>EndPoint List>IPV4 or Statistics>Conversations>IPV4
+4. Which is the display filter used to display all the packets having source ip as 192.168.1.231?
+Ans 	ip.src ==192.168.1.231
+5. What are the packet numbers in this capture file which shows the TCP 3-way handshake process?
+Ans 	 tcp.seq==1 && tcp.ack==1 && tcp.len==0 && tcp.window_size_scalefactor ge 0
+6. What is the display filter used to display all the packets with ftp protocol only?
+	ftp
+7. What is the display filter used to display packets with ftp server response code as 200?
+	Ftp.response.code == 200
+8. List any two types of ftp server response codes with their meanings from this capture file.
+	200 Series -> The Requested file action okay, completed.e requested action has been successfully completed.
+	226            -> Closing data connection. Requested file action successful (for example,  file transfer or file abort).
+	100 series -> The requested action is being initiated, expect another reply before proceeding with a new command.
+	250           ->  Requested file action okay, completed.
+9. What is the client port number and the server port no.?
+	Find client and server with tcp.flags==2 then in info check client_port_no.-> server_port_no.
+10. Why is Server port no is 21?
+	Server controls ftp so its port no. is 21
+	Service   Port    Function
+ FTP         20,21       File transfer
+
+
+11. List 5 commands that User tried on the ftp server CMD Line after a successful login attempt.
+	Ftp.request.command  write the request(mkd , pkd)
+12. How many times does that user has tried to login to the ftp server?
+	Ftp.response.code ==331
+13. Which is the display filter used to display all the tcp ERROR packets i.e. Black labeled one?
+	tcp.analysis.flags
+14. What is the original window size value and multiplication factor for the new window size during the transmission of 97th packet?
+	Go to packet click on it and go to tcp
+	Ws =1448
+	Mf = 4
+15. What is the display filter used to display all the packets with no protocol used as ftp?
+	Not ftp
+16. Why all the packets get displayed even after trying to filter out tcp packets?
+.	bcoz ftp uses tcp
+17. What is the RTT for given capture file?
+	tcp.analysis.ack_rtt
+18. Which flags are set in the 111th and 58th packet?
+	Frame.number find frame check in flags
+19. In which directory did the User found README file on the ftp server?
+	Ctrl f case-sensitive string “README ” find
+	/uploads
+20. How many packets are there where user deals with resume.doc with different commands in the ftp server command line?
+	Resume.doc above
