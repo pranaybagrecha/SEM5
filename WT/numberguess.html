@@ -1,0 +1,24 @@
+<html>
+    <head>
+        <script>
+            function check(){
+                // var num=document.getElementById('num').value;
+                var x=prompt("Enter number");
+                var num=parseInt(x);
+                const guess = Math.ceil(Math.random() * 10);
+                if(num==guess)
+                alert("Matched");
+                else 
+                alert("Not matched" + guess);
+            }
+        </script>    
+
+    </head>
+    <body>
+        <form>
+            <!-- Enter number:<br>
+            <input type="number" id="num" placeholder="Enter number here"> -->
+            <button onclick="check()">Try luck</button>
+        </form>
+    </body>
+</html>

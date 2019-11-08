@@ -1,0 +1,21 @@
+<html>
+    <head>
+        <script>
+            function check(){
+                var date=new Date(document.getElementById('num'));
+                alert(date);
+                var year=date.getFullYear();
+                alert("Hi" + year);
+            }
+        </script>    
+
+    </head>
+    <body>
+        <form>
+            Enter date:<br>
+            <input type="date" id="num" placeholder="Enter date here">
+            <button onclick="check()">Try luck</button>
+        </form>
+    </body>
+
+</html>

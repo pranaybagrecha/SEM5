@@ -1,0 +1,137 @@
+<html>
+    <head>
+        <script>
+            function validate(){
+                var x=(document.getElementById('numbool').value);
+                var uname=document.getElementById('username').value.length;
+                var name=document.getElementById('name').value;
+                var zip=document.getElementById('zip').value;
+                var submitval='true';
+                if (x!='true' && x!='false')
+                {
+                    //if(!alert('Enter Boolean!')){opener.location.reload();}
+                    alert('Enter Boolean!'+x);
+                    submitval='false';
+                }
+                if (uname<7 || uname>12)
+                {
+                    alert('Uname too big or small');
+                    submitval='false';
+                }
+                if (!/^[a-zA-Z]+$/.test(name))
+                {
+                    alert('Enter only alphabetic name');
+                    submitval='false';
+                }
+                if (!/^[0-9]+$/.test(zip)) 
+                {
+                    alert('Enter only numeric zip');
+                    submitval='false';
+                }
+            }
+                function ValidateIPaddress(ipaddress) 
+                {  
+                if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipaddress)) {  
+                    alert('valid ip address'+ipaddress);
+                    return (true);
+                }  
+                alert("You have entered an invalid IP address!"); 
+                return (false);
+                } 
+                function ValidateIPaddress()
+                {
+                    // var myip=document.getElementById('ip').value;
+                    var myip=document.myForm.ip.value;
+                    var ip=myip.split(".");
+                    if(ip.length==4)
+                    {
+                        for(i=0;i<4;i++)
+                        {
+                            if(ip[i]>=0 && ip[i]<=255)
+                            {
+                                val='true';
+                                alert('good ip');
+                            }
+                        }
+                    }
+                }
+                function validateemail()
+                {
+                    var x=document.myform.email.value;  
+                    var atposition=x.indexOf("@");  
+                    var dotposition=x.lastIndexOf(".");  
+                    if (atposition<1 || dotposition<atposition+2 || dotposition+2>=x.length){  
+                    alert("Please enter a valid e-mail address \n atpostion:"+atposition+"\n dotposition:"+dotposition);  
+                    return false; 
+                }
+                function checkChristmas(){
+                var date=new Date(document.getElementById('num'));
+                alert(date);
+                var year=date.getFullYear();
+                alert("Hi" + year);
+            }
+            function check(){
+                // var num=document.getElementById('num').value;
+                var x=prompt("Enter number");
+                var num=parseInt(x);
+                const guess = Math.ceil(Math.random() * 10);
+                if(num==guess)
+                alert("Matched");
+                else 
+                alert("Not matched" + guess);
+            }
+        </script>
+        <style>
+            form{
+                display:inline-block;
+                border: 5px dotted red;
+                padding:20px;
+                margin-top:55px;
+            }    
+            body{
+                text-align:center;
+                background-color: yellowgreen;
+            }
+            header{
+                text-align: left;
+                background-color: brown;
+                padding:10px;
+            }
+            #email:hover{
+                background-color:rgb(41, 52, 201);
+            }
+        </style>    
+
+    </head>
+    <body>
+        <header>
+            <p>Facebook Login Email: <input type="email" name='email' placeholder="Enter email">
+            Password: <input type="password" placeholder="Enter password">
+            <input type="submit" value="Submit">
+        </header>
+        <form name = "myForm" onsubmit = "return ValidateIPaddress()">
+            Bool check:
+            <input type="bool" id="numbool" name="numbool" placeholder="Enter number boolean here">
+            <br>
+            User id: <input type="text" id="username" name="username" placeholder="Enter username here"><br>
+            Password: <input type="password" id="pswd" name="pswd" ><br>
+            Name: <input type="text" id="name" name="name" placeholder="Enter name here" >
+            Address: <input type="text" id="address">
+            Country: <select name = "Country">
+                            <option value = "-1" selected>[choose yours]</option>
+                            <option value = "1">USA</option>
+                            <option value = "2">UK</option>
+                            <option value = "3">INDIA</option>
+                      </select><br>
+            Zip Code: <input type="number" id='zip' size="6"><br>
+            E-mail: <input class="f2" type="email" id="email"><br>
+            Sex: <input type="radio" name="Male" checked>Male
+            <input type="radio" name="Female" selected>Female<br>
+            About: <textarea type="text"></textarea><br>
+            <br>    
+            IP address: <input type="text" name="ip"><br>
+            <input type="submit" value="Submit" href="#">
+        </form>
+    </body>
+
+</html>

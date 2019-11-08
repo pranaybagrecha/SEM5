@@ -1,0 +1,28 @@
+<html>
+<head>
+<title>Login Form</title>
+</head>
+<body>
+    <style>
+.s {text-align:center;}
+    </style>
+<div class="s">
+<h3>Login page</h3>
+Username: <input type="password" id="myInput" placeholder="Email Id"><br><br>
+Password: <input type="password" id="myInput"><br><br>
+<input type="checkbox" onclick="myFunction()">Show Password <br><br>
+<button type="button">Log In</button>
+</div>
+<script>
+function myFunction() {
+    var x = document.getElementById("myInput");
+    if (x.type === "password") {
+        x.type = "text";
+    } else {
+        x.type = "password";
+    }
+}
+</script>
+ 
+</body>
+</html>
